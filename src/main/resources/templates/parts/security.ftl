@@ -1,4 +1,3 @@
-
 <#assign
 known = SPRING_SECURITY_CONTEXT??
 >

@@ -1,57 +1,28 @@
-<#import "parts/common.ftl" as c>
+<#include "security.ftl">
+<#import "login.ftl" as l>
 
-<@c.page>
-<div class="form-row">
-    <div class="form-group col-md-6">
-        <form method="get" action="/main" class="form-inline">
-            <input type="text" name="filter" class="form-control" value="${filter?ifExists}" placeholder="Search by tag">
-            <button type="submit" class="btn btn-primary ml-2">Search</button>
-        </form>
-    </div>
-</div>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Sweater</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-    Add new Message
-</a>
-<div class="collapse" id="collapseExample">
-    <div class="form-group mt-3">
-        <form method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <input type="text" class="form-control" name="text" placeholder="Введите сообщение" />
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" name="tag" placeholder="Тэг">
-            </div>
-            <div class="form-group">
-                <div class="custom-file">
-                    <input type="file" name="file" id="customFile">
-                    <label class="custom-file-label" for="customFile">Choose file</label>
-                </div>
-            </div>
-            <input type="hidden" name="_csrf" value="${_csrf.token}" />
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Добавить</button>
-            </div>
-        </form>
-    </div>
-</div>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main">Messages</a>
+            </li>
+            <#if isAdmin>
+            <li class="nav-item">
+                <a class="nav-link" href="/user">User list</a>
+            </li>
+            </#if>
+        </ul>
 
-<div class="card-columns">
-    <#list messages as message>
-    <div class="card my-3">
-        <#if message.filename??>
-        <img src="/img/${message.filename}" class="card-img-top">
-        </#if>
-        <div class="m-2">
-            <span>${message.text}</span>
-            <i>${message.tag}</i>
-        </div>
-        <div class="card-footer text-muted">
-            ${message.authorName}
-        </div>
+        <div class="navbar-text mr-3">${name}</div>
+        <@l.logout />
     </div>
-    <#else>
-    No message
-    </#list>
-</div>
-</@c.page>
+</nav>
