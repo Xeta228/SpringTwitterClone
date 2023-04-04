@@ -30,9 +30,10 @@ public class Controller {
         return "welcomepage";
     }
 
+
     @GetMapping("/main")
     public String main(@RequestParam(required = false, defaultValue = "")String filter, Model model) {
-        Iterable<Message> messages = messageRepo.findAll();
+        Iterable<Message> messages = messageRepo.findAll(); //need to make messages come in a reversed order
         if (filter != null && !filter.isEmpty()) {
             messages = messageRepo.findByTag(filter);
         }
