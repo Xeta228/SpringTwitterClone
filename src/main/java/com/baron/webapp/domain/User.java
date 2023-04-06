@@ -20,6 +20,8 @@ public class User implements UserDetails {
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name="user_id")) //Name of table, and column to use as foreign key
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles;
+    private String email;
+    private String activationCode;
 
     public Long getId() {
         return id;
@@ -92,5 +94,21 @@ public class User implements UserDetails {
             return true;
         }
         else return false;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
     }
 }
