@@ -14,6 +14,7 @@ public class Message {
     @JoinColumn(name="user_id")
     private User author;
 
+    @Column(name = "filename")
     private String fileName;
 
     public User getAuthor() {
