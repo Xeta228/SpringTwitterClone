@@ -1,6 +1,8 @@
 package com.baron.webapp.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,13 +15,20 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank(message = "username cannot be empty!")
     private String username;
+    @NotBlank(message = "password cannot be empty!")
     private String password;
+    @Transient
+    @NotBlank(message = "please confirm your password")
+    private String password2;
     private boolean active;
     @ElementCollection(targetClass = Roles.class, fetch = FetchType.EAGER) //creates something like One-To-Many mapping
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name="user_id")) //Name of table, and column to use as foreign key
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles;
+    @Email(message = "Please enter correct email adress")
+    @NotBlank(message = "email cannot be empty!")
     private String email;
     private String activationCode;
 
@@ -110,5 +119,13 @@ public class User implements UserDetails {
 
     public void setActivationCode(String activationCode) {
         this.activationCode = activationCode;
+    }
+
+    public String getPassword2() {
+        return password2;
+    }
+
+    public void setPassword2(String password2) {
+        this.password2 = password2;
     }
 }

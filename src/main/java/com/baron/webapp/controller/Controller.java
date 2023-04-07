@@ -3,10 +3,12 @@ package com.baron.webapp.controller;
 import com.baron.webapp.domain.Message;
 import com.baron.webapp.domain.User;
 import com.baron.webapp.repositories.MessageRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +28,7 @@ public class Controller {
     private String uploadPath;
 
     @GetMapping("/")
-    public String welcomePage(Map<String,Object> model){
+    public String welcomePage(Model model){
         return "welcomepage";
     }
 
@@ -48,25 +50,30 @@ public class Controller {
 
 
     @PostMapping("/main")
-    public String add(@AuthenticationPrincipal User user, @RequestParam String text, @RequestParam String tag, Map<String, Object> model, @RequestParam("file") MultipartFile
+    public String add(@AuthenticationPrincipal User user, @Valid Message message, BindingResult bindingResult, Model model, @RequestParam("file") MultipartFile
     file) throws IOException {
-        Message message = new Message(text, tag, user);
-        if (file != null && !file.getOriginalFilename().isEmpty()){
-            File uploadDir = new File(uploadPath);
-            if(!uploadDir.exists()){
-                uploadDir.mkdir();
-            }
-            String uuidFile = UUID.randomUUID().toString();
-            String resultFileName = uuidFile + "." + file.getOriginalFilename();
-            file.transferTo(new File(uploadPath + "/" + resultFileName));
-            message.setFileName(resultFileName);
+        message.setAuthor(user);
+        if(bindingResult.hasErrors()){
+            Map<String, String> errorsMap = ControllerUtils.getErrors(bindingResult);
+            model.mergeAttributes(errorsMap);
+            model.addAttribute("message", message);
         }
-        messageRepo.save(message);
+        else {
+            if (file != null && !file.getOriginalFilename().isEmpty()) {
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdir();
+                }
+                String uuidFile = UUID.randomUUID().toString();
+                String resultFileName = uuidFile + "." + file.getOriginalFilename();
+                file.transferTo(new File(uploadPath + "/" + resultFileName));
+                message.setFileName(resultFileName);
+            }
+            model.addAttribute("message",null);
+            messageRepo.save(message);
+        }
         Iterable<Message> messages = messageRepo.findAll();
-        model.put("messages", messages);
+        model.addAttribute("messages", messages);
         return "main";
     }
-
-
-
 }
