@@ -19,9 +19,6 @@ public class User implements UserDetails {
     private String username;
     @NotBlank(message = "password cannot be empty!")
     private String password;
-    @Transient
-    @NotBlank(message = "please confirm your password")
-    private String password2;
     private boolean active;
     @ElementCollection(targetClass = Roles.class, fetch = FetchType.EAGER) //creates something like One-To-Many mapping
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name="user_id")) //Name of table, and column to use as foreign key
@@ -121,11 +118,4 @@ public class User implements UserDetails {
         this.activationCode = activationCode;
     }
 
-    public String getPassword2() {
-        return password2;
-    }
-
-    public void setPassword2(String password2) {
-        this.password2 = password2;
-    }
 }

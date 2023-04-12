@@ -37,7 +37,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/","registration","/static/**","/activate/*").permitAll()
                         .anyRequest().authenticated()
-                )
+                ).rememberMe().and()
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .permitAll()

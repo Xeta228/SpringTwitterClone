@@ -25,7 +25,7 @@
     </div>
     <#if isRegisterForm>
         <div class="form-group row">
-        <label class="col-sm-2 col-form-label">Password:</label>
+        <label class="col-sm-2 col-form-label">Re-type password:</label>
         <div class="col-sm-6">
             <input type="password" name="password2" class="form-control ${(password2Error??)?string('is-invalid', '')}" placeholder="Confirm password" />
             <#if password2Error??>
@@ -48,6 +48,16 @@
             </div>
         </div>
     </#if>
+    <div>
+        <div class="col-sm-6">
+            <div class="g-recaptcha" data-sitekey="6LdDtXwlAAAAAHCZx4p6FPB4DrAZT2-Bh_22moSE">
+            </div>
+            <#if captchaError??>
+                <div class="alert alert-danger" role="alert">
+                    ${captchaError}
+                </div>
+            </#if>
+        </div>
     <input type="hidden" name="_csrf" value="${_csrf.token}" />
     <#if !isRegisterForm><a href="/registration">Add new user</a></#if>
     <button class="btn btn-primary" type="submit"><#if isRegisterForm>Create<#else>Sign In</#if></button>
