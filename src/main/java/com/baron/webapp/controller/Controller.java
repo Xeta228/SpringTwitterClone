@@ -90,7 +90,11 @@ public class Controller {
                                            @PathVariable User user, Model model,
                                            @RequestParam(required = false) Message message){
         List<Message> messages = user.getMessages();
-        model.addAttribute("messages",messages);
+        model.addAttribute("userChannel", user);
+        model.addAttribute("subscriptionsCount",user.getSubscriptions().size());
+        model.addAttribute("subscribersCount",user.getSubscribers().size());
+        model.addAttribute("isSubscriber", user.getSubscribers().contains(currentUser));
+        model.addAttribute("messages", messages);
         model.addAttribute("isCurrentUser",currentUser.equals(user));
         model.addAttribute("message",message);
         return "userMessages";

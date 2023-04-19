@@ -26,7 +26,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${hostname}")
+    @Value("${hostadress}")
     private String hostname;
 
     @Override
@@ -112,5 +112,15 @@ public class UserService implements UserDetailsService {
         if (isEmailChanged) {
             sendMessage(user);
         }
+    }
+
+    public void subscribe(User currentUSer, User user) {
+        user.getSubscribers().add(currentUSer);
+        userRepository.save(user);
+    }
+
+    public void unsubscribe(User currentUSer, User user) {
+        user.getSubscribers().remove(currentUSer);
+        userRepository.save(user);
     }
 }
