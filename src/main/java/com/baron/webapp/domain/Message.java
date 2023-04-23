@@ -1,8 +1,12 @@
 package com.baron.webapp.domain;
 
+import com.baron.webapp.domain.util.MessageHelper;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -23,6 +27,10 @@ public class Message {
     @Column(name = "filename")
     private String fileName;
 
+    @ManyToMany
+    @JoinTable(name="message_likes",joinColumns = @JoinColumn(name="message_id"),inverseJoinColumns = @JoinColumn(name="user_id"))
+    private Set<User> likes = new HashSet<>();
+
     public User getAuthor() {
         return author;
     }
@@ -32,6 +40,10 @@ public class Message {
     }
 
     public Message() {
+    }
+
+    public String getAuthorName(){
+        return MessageHelper.getAuthorName(author);
     }
 
     public Message(String text, String tag, User user) {
@@ -66,6 +78,14 @@ public class Message {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public Set<User> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<User> likes) {
+        this.likes = likes;
     }
 
     public void setFileName(String fileName) {

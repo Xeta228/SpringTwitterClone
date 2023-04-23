@@ -2,6 +2,7 @@ package com.baron.webapp.controller;
 
 import com.baron.webapp.domain.Message;
 import com.baron.webapp.domain.User;
+import com.baron.webapp.domain.dto.MessageDto;
 import com.baron.webapp.repositories.MessageRepository;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
@@ -15,16 +16,17 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @org.springframework.stereotype.Controller
@@ -42,14 +44,15 @@ public class Controller {
 
 
     @GetMapping("/main")
-    public String main(@RequestParam(required = false, defaultValue = "")String filter, Model model, @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC)
-    Pageable pageable) {
-        Page<Message> page;
+    public String main(@RequestParam(required = false, defaultValue = "")String filter, Model model,
+                       @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC)
+    Pageable pageable, @AuthenticationPrincipal User user) {
+        Page<MessageDto> page;
         if (filter != null && !filter.isEmpty()) {
-            page = messageRepo.findByTag(filter, pageable);
+           page = messageRepo.findByTag(filter, pageable, user);
         }
         else {
-            page = messageRepo.findAll(pageable);
+            page = messageRepo.findAll(pageable,user);
         }
         model.addAttribute("page", page);
         model.addAttribute("url","/main");
@@ -75,7 +78,7 @@ public class Controller {
         }
         Iterable<Message> messages = messageRepo.findAll();
         model.addAttribute("messages", messages);
-        return "main";
+        return "redirect:/main";
     }
 
     private void saveFile(Message message, MultipartFile file) throws IOException {
@@ -96,7 +99,7 @@ public class Controller {
     public String resolveMessageEditorPage(@AuthenticationPrincipal User currentUser,
                                            @PathVariable User user, Model model,
                                            @RequestParam(required = false) Message message, @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
-        Page<Message> page = messageRepo.findByAuthor(user, pageable);
+        Page<MessageDto> page = messageRepo.findByAuthor(user, pageable, currentUser);
 
         model.addAttribute("userChannel", user);
         model.addAttribute("subscriptionsCount",user.getSubscriptions().size());
@@ -124,5 +127,21 @@ public class Controller {
             messageRepo.save(message);
         }
         return "redirect:/user-messages/" + id;
+    }
+
+    @GetMapping("/messages/{message}/like")
+    public String like(@AuthenticationPrincipal User currentUser,
+                       @PathVariable Message message,
+                       RedirectAttributes redirectAttributes,
+                       @RequestHeader(required = false)String referer){
+        Set<User> likes = message.getLikes();
+        if(likes.contains(currentUser)){
+            likes.remove(currentUser);
+        }else{
+            likes.add(currentUser);
+        }
+        UriComponents components = UriComponentsBuilder.fromHttpUrl(referer).build();
+        components.getQueryParams().entrySet().forEach(pair -> redirectAttributes.addAttribute(pair.getKey(),pair.getValue()));
+        return "redirect:" + components.getPath();
     }
 }
