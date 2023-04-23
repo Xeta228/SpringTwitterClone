@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -94,13 +95,15 @@ public class Controller {
     @GetMapping("/user-messages/{user}")
     public String resolveMessageEditorPage(@AuthenticationPrincipal User currentUser,
                                            @PathVariable User user, Model model,
-                                           @RequestParam(required = false) Message message){
-        List<Message> messages = user.getMessages();
+                                           @RequestParam(required = false) Message message, @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable){
+        Page<Message> page = messageRepo.findByAuthor(user, pageable);
+
         model.addAttribute("userChannel", user);
         model.addAttribute("subscriptionsCount",user.getSubscriptions().size());
         model.addAttribute("subscribersCount",user.getSubscribers().size());
         model.addAttribute("isSubscriber", user.getSubscribers().contains(currentUser));
-        model.addAttribute("messages", messages);
+        model.addAttribute("page", page);
+        model.addAttribute("url","/user-messages/" + user.getId());
         model.addAttribute("isCurrentUser",currentUser.equals(user));
         model.addAttribute("message",message);
         return "userMessages";
